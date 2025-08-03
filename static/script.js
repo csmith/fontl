@@ -76,6 +76,33 @@ document.addEventListener('DOMContentLoaded', function() {
     sizeInput.addEventListener('input', updatePreviews);
 
     updatePreviews();
+
+    // Random font styling for h1
+    function applyRandomFonts() {
+        const h1 = document.querySelector('h1');
+        if (!h1) return;
+
+        // Collect all available font names from the page
+        const fontItems = document.querySelectorAll('.font-name');
+        const fontNames = Array.from(fontItems).map(item => item.textContent.trim());
+        
+        if (fontNames.length === 0) return;
+
+        // Split h1 text into individual characters and wrap each in a span
+        const text = h1.textContent;
+        const wrappedText = text.split('').map(char => {
+            if (char === ' ') {
+                return ' ';
+            }
+            const randomFont = fontNames[Math.floor(Math.random() * fontNames.length)];
+            return `<span style="font-family: '${randomFont}'">${char}</span>`;
+        }).join('');
+        
+        h1.innerHTML = wrappedText;
+    }
+
+    // Apply random fonts
+    applyRandomFonts();
 });
 
 // Global function to open edit modal

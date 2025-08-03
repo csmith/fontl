@@ -10,6 +10,7 @@ body { font-family: Arial, sans-serif; margin: 40px; }
 
 .page-header h1 {
     margin: 0;
+    font-size: 3rem;
 }
 
 .header-buttons {
