@@ -1,0 +1,53 @@
+body { font-family: Arial, sans-serif; margin: 40px; }
+.font-item { margin-bottom: 40px; padding: 20px; border: 1px solid #ddd; }
+.font-name { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+.metadata { margin-bottom: 15px; }
+.metadata-item { margin-bottom: 5px; }
+.preview { font-size: 48px; margin-top: 15px; }
+
+/* Upload form styles */
+.upload-form {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 2px dashed #ccc;
+    background-color: #f9f9f9;
+}
+
+.upload-form h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.form-checkbox {
+    margin-right: 8px;
+}
+
+.upload-button {
+    background-color: #007cba;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.upload-status {
+    margin-top: 15px;
+    display: none;
+}

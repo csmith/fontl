@@ -44,6 +44,7 @@ func (s *Server) setupRoutes() {
 	s.mux.HandleFunc("/fonts/", s.handleFontServe)
 	s.mux.HandleFunc("/css/", s.handleCSSServe)
 	s.mux.HandleFunc("/upload", s.handleUpload)
+	s.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 }
 
 func (s *Server) handleFontServe(w http.ResponseWriter, r *http.Request) {

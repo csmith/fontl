@@ -2,14 +2,7 @@
 <html lang="en">
 <head>
     <title>Font Library</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .font-item { margin-bottom: 40px; padding: 20px; border: 1px solid #ddd; }
-        .font-name { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-        .metadata { margin-bottom: 15px; }
-        .metadata-item { margin-bottom: 5px; }
-        .preview { font-size: 48px; margin-top: 15px; }
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
     {{range .}}
     <style>
         {{safeCSS .CSS}}
@@ -19,38 +12,38 @@
 <body>
     <h1>Font Library</h1>
     
-    <div style="margin-bottom: 30px; padding: 20px; border: 2px dashed #ccc; background-color: #f9f9f9;">
+    <div class="upload-form">
         <h2>Upload Font</h2>
         <form id="uploadForm" enctype="multipart/form-data" method="post" action="/upload">
-            <div style="margin-bottom: 15px;">
-                <label for="fontFile" style="display: block; margin-bottom: 5px; font-weight: bold;">Font File:</label>
-                <input type="file" id="fontFile" name="fontFile" accept=".ttf,.otf,.woff,.woff2,.eot" required style="width: 100%; padding: 8px;">
+            <div class="form-group">
+                <label for="fontFile" class="form-label">Font File:</label>
+                <input type="file" id="fontFile" name="fontFile" accept=".ttf,.otf,.woff,.woff2,.eot" required class="form-input">
             </div>
-            <div style="margin-bottom: 15px;">
-                <label for="fontName" style="display: block; margin-bottom: 5px; font-weight: bold;">Font Name:</label>
-                <input type="text" id="fontName" name="fontName" placeholder="Leave empty to use filename" style="width: 100%; padding: 8px;">
+            <div class="form-group">
+                <label for="fontName" class="form-label">Font Name:</label>
+                <input type="text" id="fontName" name="fontName" placeholder="Leave empty to use filename" class="form-input">
             </div>
-            <div style="margin-bottom: 15px;">
-                <label for="source" style="display: block; margin-bottom: 5px; font-weight: bold;">Source:</label>
-                <input type="text" id="source" name="source" placeholder="e.g., Google Fonts, Adobe, etc." style="width: 100%; padding: 8px;">
+            <div class="form-group">
+                <label for="source" class="form-label">Source:</label>
+                <input type="text" id="source" name="source" placeholder="e.g., Google Fonts, Adobe, etc." class="form-input">
             </div>
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">
-                    <input type="checkbox" id="commercialUse" name="commercialUse" style="margin-right: 8px;">
+            <div class="form-group">
+                <label class="form-label">
+                    <input type="checkbox" id="commercialUse" name="commercialUse" class="form-checkbox">
                     Commercial Use Allowed
                 </label>
             </div>
-            <div style="margin-bottom: 15px;">
-                <label for="projects" style="display: block; margin-bottom: 5px; font-weight: bold;">Projects (comma-separated):</label>
-                <input type="text" id="projects" name="projects" placeholder="e.g., website, branding, print" style="width: 100%; padding: 8px;">
+            <div class="form-group">
+                <label for="projects" class="form-label">Projects (comma-separated):</label>
+                <input type="text" id="projects" name="projects" placeholder="e.g., website, branding, print" class="form-input">
             </div>
-            <div style="margin-bottom: 15px;">
-                <label for="tags" style="display: block; margin-bottom: 5px; font-weight: bold;">Tags (comma-separated):</label>
-                <input type="text" id="tags" name="tags" placeholder="e.g., serif, display, modern" style="width: 100%; padding: 8px;">
+            <div class="form-group">
+                <label for="tags" class="form-label">Tags (comma-separated):</label>
+                <input type="text" id="tags" name="tags" placeholder="e.g., serif, display, modern" class="form-input">
             </div>
-            <button type="submit" style="background-color: #007cba; color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 16px;">Upload Font</button>
+            <button type="submit" class="upload-button">Upload Font</button>
         </form>
-        <div id="uploadStatus" style="margin-top: 15px; display: none;"></div>
+        <div id="uploadStatus" class="upload-status"></div>
     </div>
     {{range .}}
     <div class="font-item">
