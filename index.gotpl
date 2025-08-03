@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Font Library</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .font-item { margin-bottom: 40px; padding: 20px; border: 1px solid #ddd; }
+        .font-name { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+        .metadata { margin-bottom: 15px; }
+        .metadata-item { margin-bottom: 5px; }
+        .preview { font-size: 48px; margin-top: 15px; }
+    </style>
+    {{range .}}
+    <style>
+        {{safeCSS .CSS}}
+    </style>
+    {{end}}
+</head>
+<body>
+    <h1>Font Library</h1>
+    {{range .}}
+    <div class="font-item">
+        <div class="font-name">{{.Name}}</div>
+        <div class="metadata">
+            <div class="metadata-item"><strong>File:</strong> {{.Filename}}</div>
+            <div class="metadata-item"><strong>Source:</strong> {{.Metadata.Source}}</div>
+            <div class="metadata-item"><strong>Commercial Use:</strong> {{.Metadata.CommercialUse}}</div>
+            {{if .Metadata.Projects}}<div class="metadata-item"><strong>Projects:</strong> {{range $i, $p := .Metadata.Projects}}{{if $i}}, {{end}}{{$p}}{{end}}</div>{{end}}
+            {{if .Metadata.Tags}}<div class="metadata-item"><strong>Tags:</strong> {{range $i, $t := .Metadata.Tags}}{{if $i}}, {{end}}{{$t}}{{end}}</div>{{end}}
+        </div>
+        <div class="preview" style="font-family: '{{.Name}}';">The quick brown fox jumps over the lazy dog</div>
+    </div>
+    {{end}}
+</body>
+</html>
