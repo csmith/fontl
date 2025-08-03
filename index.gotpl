@@ -136,7 +136,13 @@
             </div>
             <div class="font-actions">
                 <div class="metadata">
-                    <span class="metadata-item">{{.Metadata.Source}}</span>
+                    <span class="metadata-item">
+                        {{if and .Metadata.Source (or (hasPrefix .Metadata.Source "http://") (hasPrefix .Metadata.Source "https://"))}}
+                            <a href="{{.Metadata.Source}}" target="_blank" rel="noopener noreferrer">{{extractDomain .Metadata.Source}}</a>
+                        {{else}}
+                            {{.Metadata.Source}}
+                        {{end}}
+                    </span>
                     <span class="metadata-item">{{if .Metadata.CommercialUse}}Commercial Use{{else}}Personal Use{{end}}</span>
                     {{if .Metadata.Projects}}
                         {{range .Metadata.Projects}}<span class="pill project-pill">{{.}}</span>{{end}}

@@ -293,6 +293,22 @@ func initTemplate() *template.Template {
 		"safeCSS": func(css string) template.CSS {
 			return template.CSS(css)
 		},
+		"hasPrefix": func(s, prefix string) bool {
+			return strings.HasPrefix(s, prefix)
+		},
+		"extractDomain": func(url string) string {
+			if strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
+				// Remove protocol
+				url = strings.TrimPrefix(url, "http://")
+				url = strings.TrimPrefix(url, "https://")
+				// Extract just the domain part (before first slash)
+				if idx := strings.Index(url, "/"); idx != -1 {
+					url = url[:idx]
+				}
+				return url
+			}
+			return url
+		},
 	}).Parse(IndexTemplate))
 }
 
