@@ -3,6 +3,7 @@
 <head>
     <title>Font Library</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js"></script>
     {{range .}}
     <style>
         {{safeCSS .CSS}}
@@ -10,10 +11,21 @@
     {{end}}
 </head>
 <body>
-    <h1>Font Library</h1>
+    <header class="page-header">
+        <h1>Font Library</h1>
+        <div class="header-buttons">
+            <button id="previewBtn" class="header-btn">Preview Settings</button>
+            <button id="uploadBtn" class="header-btn">Upload Font</button>
+        </div>
+    </header>
     
-    <div class="upload-form">
-        <h2>Upload Font</h2>
+    <!-- Upload Dialog -->
+    <dialog id="uploadDialog">
+        <div class="dialog-header">
+            <h2>Upload Font</h2>
+            <button type="button" class="close-btn" aria-label="Close dialog">&times;</button>
+        </div>
+        <div class="upload-form">
         <form id="uploadForm" enctype="multipart/form-data" method="post" action="/upload">
             <div class="form-group">
                 <label for="fontFile" class="form-label">Font File:</label>
@@ -28,10 +40,17 @@
                 <input type="text" id="source" name="source" placeholder="e.g., Google Fonts, Adobe, etc." class="form-input">
             </div>
             <div class="form-group">
-                <label class="form-label">
-                    <input type="checkbox" id="commercialUse" name="commercialUse" class="form-checkbox">
-                    Commercial Use Allowed
-                </label>
+                <label class="form-label">Commercial Use:</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" id="commercialUseAllowed" name="commercialUse" value="true" class="form-radio">
+                        Allowed
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" id="commercialUseNotAllowed" name="commercialUse" value="false" class="form-radio">
+                        Not allowed
+                    </label>
+                </div>
             </div>
             <div class="form-group">
                 <label for="projects" class="form-label">Projects (comma-separated):</label>
@@ -44,16 +63,43 @@
             <button type="submit" class="upload-button">Upload Font</button>
         </form>
         <div id="uploadStatus" class="upload-status"></div>
-    </div>
+        </div>
+    </dialog>
+    
+    <!-- Preview Settings Dialog -->
+    <dialog id="previewDialog">
+        <div class="dialog-header">
+            <h2>Preview Settings</h2>
+            <button type="button" class="close-btn" aria-label="Close dialog">&times;</button>
+        </div>
+        <div class="preview-form">
+            <div class="form-group">
+                <label for="previewText" class="form-label">Example Text:</label>
+                <input type="text" id="previewText" placeholder="The quick brown fox jumps over the lazy dog" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="fontSize" class="form-label">Font Size: <span id="fontSizeValue">24px</span></label>
+                <input type="range" id="fontSize" min="6" max="200" value="24" class="form-range">
+            </div>
+        </div>
+    </dialog>
     {{range .}}
     <div class="font-item">
-        <div class="font-name">{{.Name}}</div>
-        <div class="metadata">
-            <div class="metadata-item"><strong>File:</strong> {{.Filename}}</div>
-            <div class="metadata-item"><strong>Source:</strong> {{.Metadata.Source}}</div>
-            <div class="metadata-item"><strong>Commercial Use:</strong> {{.Metadata.CommercialUse}}</div>
-            {{if .Metadata.Projects}}<div class="metadata-item"><strong>Projects:</strong> {{range $i, $p := .Metadata.Projects}}{{if $i}}, {{end}}{{$p}}{{end}}</div>{{end}}
-            {{if .Metadata.Tags}}<div class="metadata-item"><strong>Tags:</strong> {{range $i, $t := .Metadata.Tags}}{{if $i}}, {{end}}{{$t}}{{end}}</div>{{end}}
+        <div class="font-header">
+            <div class="font-title">
+                <span class="font-name">{{.Name}}</span>
+                <span class="font-filename">{{.Filename}}</span>
+            </div>
+            <div class="metadata">
+                <span class="metadata-item">{{.Metadata.Source}}</span>
+                <span class="metadata-item">{{if .Metadata.CommercialUse}}Commercial Use{{else}}Personal Use{{end}}</span>
+                {{if .Metadata.Projects}}
+                    {{range .Metadata.Projects}}<span class="pill project-pill">{{.}}</span>{{end}}
+                {{end}}
+                {{if .Metadata.Tags}}
+                    {{range .Metadata.Tags}}<span class="pill tag-pill">{{.}}</span>{{end}}
+                {{end}}
+            </div>
         </div>
         <div class="preview" style="font-family: '{{.Name}}';">The quick brown fox jumps over the lazy dog</div>
     </div>
