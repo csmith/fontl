@@ -129,16 +129,6 @@ func (m *Storage) AddFont(fontPath string, metadata *Metadata) error {
 	return m.saveMetadata(metadataPath, metadata)
 }
 
-func (m *Storage) UpdateMetadata(fontPath string, metadata *Metadata) error {
-	if _, exists := m.fonts[fontPath]; !exists {
-		return fmt.Errorf("font not found in manager: %s", fontPath)
-	}
-
-	m.fonts[fontPath] = metadata
-	metadataPath := m.getMetadataPath(fontPath)
-	return m.saveMetadata(metadataPath, metadata)
-}
-
 func (m *Storage) GetFonts() map[string]*Metadata {
 	return m.fonts
 }
@@ -159,6 +149,21 @@ func (m *Storage) AddUploadedFont(filename, fontPath string, metadata *Metadata)
 	m.fonts[filename] = metadata
 	m.fontPaths[filename] = fontPath
 
+	metadataPath := m.getMetadataPath(fontPath)
+	return m.saveMetadata(metadataPath, metadata)
+}
+
+func (m *Storage) UpdateFontMetadata(filename string, metadata *Metadata) error {
+	if _, exists := m.fonts[filename]; !exists {
+		return fmt.Errorf("font not found: %s", filename)
+	}
+
+	fontPath, exists := m.fontPaths[filename]
+	if !exists {
+		return fmt.Errorf("font path not found for: %s", filename)
+	}
+
+	m.fonts[filename] = metadata
 	metadataPath := m.getMetadataPath(fontPath)
 	return m.saveMetadata(metadataPath, metadata)
 }

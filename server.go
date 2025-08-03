@@ -45,6 +45,7 @@ func (s *Server) setupRoutes() {
 	s.mux.HandleFunc("/fonts/", s.handleFontServe)
 	s.mux.HandleFunc("/css/", s.handleCSSServe)
 	s.mux.HandleFunc("/upload", s.handleUpload)
+	s.mux.HandleFunc("/edit", s.handleEdit)
 	staticFS, _ := fs.Sub(StaticFiles, "static")
 	s.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
 }
@@ -226,6 +227,64 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("Successfully uploaded font: %s", filename)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (s *Server) handleEdit(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	filename := r.FormValue("filename")
+	if filename == "" {
+		http.Error(w, "Filename is required", http.StatusBadRequest)
+		return
+	}
+
+	fontName := r.FormValue("fontName")
+	if fontName == "" {
+		http.Error(w, "Font name is required", http.StatusBadRequest)
+		return
+	}
+
+	source := r.FormValue("source")
+	commercialUse, _ := strconv.ParseBool(r.FormValue("commercialUse"))
+
+	var projects []string
+	if projectsStr := r.FormValue("projects"); projectsStr != "" {
+		for _, p := range strings.Split(projectsStr, ",") {
+			projects = append(projects, strings.TrimSpace(p))
+		}
+	}
+
+	var tags []string
+	if tagsStr := r.FormValue("tags"); tagsStr != "" {
+		for _, t := range strings.Split(tagsStr, ",") {
+			tags = append(tags, strings.TrimSpace(t))
+		}
+	}
+
+	metadata := &Metadata{
+		Name:          fontName,
+		Source:        source,
+		CommercialUse: commercialUse,
+		Projects:      projects,
+		Tags:          tags,
+	}
+
+	if err := s.storage.UpdateFontMetadata(filename, metadata); err != nil {
+		log.Printf("Failed to update font metadata: %v", err)
+		http.Error(w, "Failed to update font metadata", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Successfully updated font metadata: %s", filename)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 

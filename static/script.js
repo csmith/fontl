@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewBtn = document.getElementById('previewBtn');
     const previewDialog = document.getElementById('previewDialog');
     const previewCloseBtn = previewDialog.querySelector('.close-btn');
+    
+    // Edit dialog functionality
+    const editDialog = document.getElementById('editDialog');
+    const editCloseBtn = editDialog.querySelector('.close-btn');
 
     // Upload dialog event listeners
     uploadBtn.addEventListener('click', () => {
@@ -39,6 +43,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Edit dialog event listeners
+    editCloseBtn.addEventListener('click', () => {
+        editDialog.close();
+    });
+
+    editDialog.addEventListener('click', (e) => {
+        if (e.target === editDialog) {
+            editDialog.close();
+        }
+    });
+
     // Preview controls functionality
     const textInput = document.getElementById('previewText');
     const sizeInput = document.getElementById('fontSize');
@@ -62,3 +77,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
     updatePreviews();
 });
+
+// Global function to open edit modal
+function openEditModal(filename, name, source, commercialUse, projects, tags) {
+    const editDialog = document.getElementById('editDialog');
+    
+    // Populate form fields
+    document.getElementById('editFilename').value = filename;
+    document.getElementById('editFontName').value = name;
+    document.getElementById('editSource').value = source;
+    
+    // Set commercial use radio button
+    if (commercialUse) {
+        document.getElementById('editCommercialUseAllowed').checked = true;
+    } else {
+        document.getElementById('editCommercialUseNotAllowed').checked = true;
+    }
+    
+    // Clean up projects and tags (remove trailing comma)
+    const cleanProjects = projects.replace(/,$/, '');
+    const cleanTags = tags.replace(/,$/, '');
+    
+    document.getElementById('editProjects').value = cleanProjects;
+    document.getElementById('editTags').value = cleanTags;
+    
+    editDialog.showModal();
+}

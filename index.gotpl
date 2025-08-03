@@ -83,6 +83,50 @@
             </div>
         </div>
     </dialog>
+    
+    <!-- Edit Font Dialog -->
+    <dialog id="editDialog">
+        <div class="dialog-header">
+            <h2>Edit Font</h2>
+            <button type="button" class="close-btn" aria-label="Close dialog">&times;</button>
+        </div>
+        <div class="edit-form">
+        <form id="editForm" method="post" action="/edit">
+            <input type="hidden" id="editFilename" name="filename">
+            <div class="form-group">
+                <label for="editFontName" class="form-label">Font Name:</label>
+                <input type="text" id="editFontName" name="fontName" required class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="editSource" class="form-label">Source:</label>
+                <input type="text" id="editSource" name="source" placeholder="e.g., Google Fonts, Adobe, etc." class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Commercial Use:</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" id="editCommercialUseAllowed" name="commercialUse" value="true" class="form-radio">
+                        Allowed
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" id="editCommercialUseNotAllowed" name="commercialUse" value="false" class="form-radio">
+                        Not allowed
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="editProjects" class="form-label">Projects (comma-separated):</label>
+                <input type="text" id="editProjects" name="projects" placeholder="e.g., website, branding, print" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="editTags" class="form-label">Tags (comma-separated):</label>
+                <input type="text" id="editTags" name="tags" placeholder="e.g., serif, display, modern" class="form-input">
+            </div>
+            <button type="submit" class="upload-button">Update Font</button>
+        </form>
+        <div id="editStatus" class="upload-status"></div>
+        </div>
+    </dialog>
     {{range .}}
     <div class="font-item">
         <div class="font-header">
@@ -90,15 +134,18 @@
                 <span class="font-name">{{.Name}}</span>
                 <span class="font-filename">{{.Filename}}</span>
             </div>
-            <div class="metadata">
-                <span class="metadata-item">{{.Metadata.Source}}</span>
-                <span class="metadata-item">{{if .Metadata.CommercialUse}}Commercial Use{{else}}Personal Use{{end}}</span>
-                {{if .Metadata.Projects}}
-                    {{range .Metadata.Projects}}<span class="pill project-pill">{{.}}</span>{{end}}
-                {{end}}
-                {{if .Metadata.Tags}}
-                    {{range .Metadata.Tags}}<span class="pill tag-pill">{{.}}</span>{{end}}
-                {{end}}
+            <div class="font-actions">
+                <div class="metadata">
+                    <span class="metadata-item">{{.Metadata.Source}}</span>
+                    <span class="metadata-item">{{if .Metadata.CommercialUse}}Commercial Use{{else}}Personal Use{{end}}</span>
+                    {{if .Metadata.Projects}}
+                        {{range .Metadata.Projects}}<span class="pill project-pill">{{.}}</span>{{end}}
+                    {{end}}
+                    {{if .Metadata.Tags}}
+                        {{range .Metadata.Tags}}<span class="pill tag-pill">{{.}}</span>{{end}}
+                    {{end}}
+                </div>
+                <button class="edit-btn" onclick="openEditModal('{{.Filename}}', '{{.Name}}', '{{.Metadata.Source}}', {{.Metadata.CommercialUse}}, '{{range .Metadata.Projects}}{{.}},{{end}}', '{{range .Metadata.Tags}}{{.}},{{end}}')">Edit</button>
             </div>
         </div>
         <div class="preview" style="font-family: '{{.Name}}';">The quick brown fox jumps over the lazy dog</div>
