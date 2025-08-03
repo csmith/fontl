@@ -7,8 +7,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -41,6 +43,7 @@ func (s *Server) setupRoutes() {
 	s.mux.HandleFunc("/", s.handleIndex)
 	s.mux.HandleFunc("/fonts/", s.handleFontServe)
 	s.mux.HandleFunc("/css/", s.handleCSSServe)
+	s.mux.HandleFunc("/upload", s.handleUpload)
 }
 
 func (s *Server) handleFontServe(w http.ResponseWriter, r *http.Request) {
@@ -136,6 +139,91 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error executing template: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
+}
+
+func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	file, header, err := r.FormFile("fontFile")
+	if err != nil {
+		http.Error(w, "Failed to get file from form", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	filename := header.Filename
+	if !s.storage.IsFontFile(filename) {
+		http.Error(w, "Invalid font file type", http.StatusBadRequest)
+		return
+	}
+
+	fontPath := filepath.Join(s.storage.directory, filename)
+	if _, err := os.Stat(fontPath); err == nil {
+		http.Error(w, "Font file already exists", http.StatusConflict)
+		return
+	}
+
+	outFile, err := os.Create(fontPath)
+	if err != nil {
+		log.Printf("Failed to create font file: %v", err)
+		http.Error(w, "Failed to save font file", http.StatusInternalServerError)
+		return
+	}
+	defer outFile.Close()
+
+	if _, err := io.Copy(outFile, file); err != nil {
+		log.Printf("Failed to copy font file: %v", err)
+		http.Error(w, "Failed to save font file", http.StatusInternalServerError)
+		return
+	}
+
+	fontName := r.FormValue("fontName")
+	if fontName == "" {
+		fontName = strings.TrimSuffix(filename, filepath.Ext(filename))
+	}
+
+	source := r.FormValue("source")
+	commercialUse, _ := strconv.ParseBool(r.FormValue("commercialUse"))
+
+	var projects []string
+	if projectsStr := r.FormValue("projects"); projectsStr != "" {
+		for _, p := range strings.Split(projectsStr, ",") {
+			projects = append(projects, strings.TrimSpace(p))
+		}
+	}
+
+	var tags []string
+	if tagsStr := r.FormValue("tags"); tagsStr != "" {
+		for _, t := range strings.Split(tagsStr, ",") {
+			tags = append(tags, strings.TrimSpace(t))
+		}
+	}
+
+	metadata := &Metadata{
+		Name:          fontName,
+		Source:        source,
+		CommercialUse: commercialUse,
+		Projects:      projects,
+		Tags:          tags,
+	}
+
+	if err := s.storage.AddUploadedFont(filename, fontPath, metadata); err != nil {
+		log.Printf("Failed to add font to storage: %v", err)
+		os.Remove(fontPath)
+		http.Error(w, "Failed to save font metadata", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Successfully uploaded font: %s", filename)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func initTemplate() *template.Template {

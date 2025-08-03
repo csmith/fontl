@@ -37,7 +37,7 @@ func (m *Storage) Load() error {
 			return nil
 		}
 
-		if m.isFontFile(path) {
+		if m.IsFontFile(path) {
 			if err := m.loadFontMetadata(path); err != nil {
 				return fmt.Errorf("failed to load metadata for %s: %w", path, err)
 			}
@@ -47,7 +47,7 @@ func (m *Storage) Load() error {
 	})
 }
 
-func (m *Storage) isFontFile(path string) bool {
+func (m *Storage) IsFontFile(path string) bool {
 	ext := strings.ToLower(filepath.Ext(path))
 	fontExts := []string{".ttf", ".otf", ".woff", ".woff2", ".eot"}
 
@@ -116,7 +116,7 @@ func (m *Storage) saveMetadata(metadataPath string, metadata *Metadata) error {
 }
 
 func (m *Storage) AddFont(fontPath string, metadata *Metadata) error {
-	if !m.isFontFile(fontPath) {
+	if !m.IsFontFile(fontPath) {
 		return fmt.Errorf("file is not a supported font type: %s", fontPath)
 	}
 
@@ -149,4 +149,16 @@ func (m *Storage) GetFontFile(fontName string) (io.ReadCloser, error) {
 		fontPath = filepath.Join(m.directory, fontName)
 	}
 	return os.Open(fontPath)
+}
+
+func (m *Storage) AddUploadedFont(filename, fontPath string, metadata *Metadata) error {
+	if !m.IsFontFile(fontPath) {
+		return fmt.Errorf("file is not a supported font type: %s", fontPath)
+	}
+
+	m.fonts[filename] = metadata
+	m.fontPaths[filename] = fontPath
+
+	metadataPath := m.getMetadataPath(fontPath)
+	return m.saveMetadata(metadataPath, metadata)
 }

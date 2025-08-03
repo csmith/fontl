@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Font Library</title>
     <style>
@@ -18,6 +18,40 @@
 </head>
 <body>
     <h1>Font Library</h1>
+    
+    <div style="margin-bottom: 30px; padding: 20px; border: 2px dashed #ccc; background-color: #f9f9f9;">
+        <h2>Upload Font</h2>
+        <form id="uploadForm" enctype="multipart/form-data" method="post" action="/upload">
+            <div style="margin-bottom: 15px;">
+                <label for="fontFile" style="display: block; margin-bottom: 5px; font-weight: bold;">Font File:</label>
+                <input type="file" id="fontFile" name="fontFile" accept=".ttf,.otf,.woff,.woff2,.eot" required style="width: 100%; padding: 8px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="fontName" style="display: block; margin-bottom: 5px; font-weight: bold;">Font Name:</label>
+                <input type="text" id="fontName" name="fontName" placeholder="Leave empty to use filename" style="width: 100%; padding: 8px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="source" style="display: block; margin-bottom: 5px; font-weight: bold;">Source:</label>
+                <input type="text" id="source" name="source" placeholder="e.g., Google Fonts, Adobe, etc." style="width: 100%; padding: 8px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">
+                    <input type="checkbox" id="commercialUse" name="commercialUse" style="margin-right: 8px;">
+                    Commercial Use Allowed
+                </label>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="projects" style="display: block; margin-bottom: 5px; font-weight: bold;">Projects (comma-separated):</label>
+                <input type="text" id="projects" name="projects" placeholder="e.g., website, branding, print" style="width: 100%; padding: 8px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="tags" style="display: block; margin-bottom: 5px; font-weight: bold;">Tags (comma-separated):</label>
+                <input type="text" id="tags" name="tags" placeholder="e.g., serif, display, modern" style="width: 100%; padding: 8px;">
+            </div>
+            <button type="submit" style="background-color: #007cba; color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 16px;">Upload Font</button>
+        </form>
+        <div id="uploadStatus" style="margin-top: 15px; display: none;"></div>
+    </div>
     {{range .}}
     <div class="font-item">
         <div class="font-name">{{.Name}}</div>
