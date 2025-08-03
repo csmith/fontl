@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -44,7 +45,8 @@ func (s *Server) setupRoutes() {
 	s.mux.HandleFunc("/fonts/", s.handleFontServe)
 	s.mux.HandleFunc("/css/", s.handleCSSServe)
 	s.mux.HandleFunc("/upload", s.handleUpload)
-	s.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	staticFS, _ := fs.Sub(StaticFiles, "static")
+	s.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
 }
 
 func (s *Server) handleFontServe(w http.ResponseWriter, r *http.Request) {
@@ -232,7 +234,7 @@ func initTemplate() *template.Template {
 		"safeCSS": func(css string) template.CSS {
 			return template.CSS(css)
 		},
-	}).ParseFiles("index.gotpl"))
+	}).Parse(IndexTemplate))
 }
 
 func (s *Server) getContentType(filename string) string {
