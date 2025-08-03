@@ -143,7 +143,7 @@
                             {{.Metadata.Source}}
                         {{end}}
                     </span>
-                    <span class="metadata-item">{{if .Metadata.CommercialUse}}Commercial Use{{else}}Personal Use{{end}}</span>
+                    <span class="pill {{if .Metadata.CommercialUse}}commercial-use-pill{{else}}personal-use-pill{{end}}">{{if .Metadata.CommercialUse}}Commercial use{{else}}Personal use only{{end}}</span>
                     {{if .Metadata.Projects}}
                         {{range .Metadata.Projects}}<span class="pill project-pill">{{.}}</span>{{end}}
                     {{end}}

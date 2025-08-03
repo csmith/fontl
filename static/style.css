@@ -93,6 +93,8 @@ dialog::backdrop {
 }
 .project-pill { background-color: #e3f2fd; color: #1976d2; }
 .tag-pill { background-color: #f3e5f5; color: #7b1fa2; }
+.commercial-use-pill { background-color: #e8f5e8; color: #2e7d32; }
+.personal-use-pill { background-color: #ffebee; color: #d32f2f; }
 .preview { font-size: 48px; margin-top: 15px; }
 
 /* Edit button styles */
