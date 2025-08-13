@@ -146,10 +146,14 @@
                     </span>
                     <span class="pill {{if .Metadata.CommercialUse}}commercial-use-pill{{else}}personal-use-pill{{end}}">{{if .Metadata.CommercialUse}}Commercial use{{else}}Personal use only{{end}}</span>
                     {{if .Metadata.Projects}}
-                        {{range .Metadata.Projects}}<span class="pill project-pill">{{.}}</span>{{end}}
+                        <span class="pill-group projects">
+                            {{range .Metadata.Projects}}<span class="pill project-pill">{{.}}</span>{{end}}
+                        </span>
                     {{end}}
                     {{if .Metadata.Tags}}
-                        {{range .Metadata.Tags}}<span class="pill tag-pill">{{.}}</span>{{end}}
+                        <span class="pill-group tags">
+                            {{range .Metadata.Tags}}<span class="pill tag-pill">{{.}}</span>{{end}}
+                        </span>
                     {{end}}
                 </div>
                 <button class="edit-btn" onclick="openEditModal('{{.Filename}}', '{{.Name}}', '{{.Metadata.Source}}', {{.Metadata.CommercialUse}}, '{{range .Metadata.Projects}}{{.}},{{end}}', '{{range .Metadata.Tags}}{{.}},{{end}}')">Edit</button>

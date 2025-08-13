@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize pill groups for truncation
+    initializePillGroups();
     // Upload dialog functionality
     const uploadBtn = document.getElementById('uploadBtn');
     const uploadDialog = document.getElementById('uploadDialog');
@@ -104,6 +106,46 @@ document.addEventListener('DOMContentLoaded', function() {
     // Apply random fonts
     applyRandomFonts();
 });
+
+// Initialize pill groups to show only first 3 with +N badge
+function initializePillGroups() {
+    document.querySelectorAll('.pill-group').forEach(group => {
+        const pills = group.querySelectorAll('.pill');
+        if (pills.length > 3) {
+            // Hide pills beyond the first 3
+            for (let i = 3; i < pills.length; i++) {
+                pills[i].classList.add('hidden');
+            }
+            // Add the +N badge
+            const morePill = document.createElement('span');
+            morePill.className = 'pill more-pill';
+            morePill.textContent = `+${pills.length - 3}`;
+            morePill.onclick = () => togglePills(morePill);
+            group.appendChild(morePill);
+        }
+    });
+}
+
+// Global function to toggle pills visibility
+function togglePills(morePill) {
+    const pillGroup = morePill.parentElement;
+    const allPills = pillGroup.querySelectorAll('.pill:not(.more-pill)');
+    const isExpanded = morePill.classList.contains('expanded');
+    
+    if (isExpanded) {
+        // Collapse: hide pills beyond the first 3
+        for (let i = 3; i < allPills.length; i++) {
+            allPills[i].classList.add('hidden');
+        }
+        morePill.classList.remove('expanded');
+        morePill.textContent = `+${allPills.length - 3}`;
+    } else {
+        // Expand: show all pills
+        allPills.forEach(pill => pill.classList.remove('hidden'));
+        morePill.classList.add('expanded');
+        morePill.textContent = 'Show less';
+    }
+}
 
 // Global function to open edit modal
 function openEditModal(filename, name, source, commercialUse, projects, tags) {
