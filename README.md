@@ -13,6 +13,7 @@ commercial use, and so on.
 - Annotate fonts with their source, commercial use, arbitrary tags, and project
   information
 - Quickly preview any text in any size in all fonts
+- Easily search by name, tags, project, source, or commercial use status
 
 ## Usage
 

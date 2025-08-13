@@ -13,10 +13,18 @@
 </head>
 <body>
     <header class="page-header">
-        <h1>fontl</h1>
-        <div class="header-buttons">
-            <button id="previewBtn" class="header-btn">Preview Settings</button>
-            <button id="uploadBtn" class="header-btn">Upload Font</button>
+        <div class="left-section">
+            <h1>fontl</h1>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search fonts by name, source, commercial use, projects, or tags..." class="search-input">
+                <div id="searchSuggestions" class="search-suggestions"></div>
+            </div>
+        </div>
+        <div class="right-section">
+            <div class="header-buttons">
+                <button id="previewBtn" class="header-btn">Preview Settings</button>
+                <button id="uploadBtn" class="header-btn">Upload Font</button>
+            </div>
         </div>
     </header>
     

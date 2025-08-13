@@ -1,6 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize pill groups for truncation
     initializePillGroups();
+    
+    // Initialize search functionality
+    initializeSearch();
+    
     // Upload dialog functionality
     const uploadBtn = document.getElementById('uploadBtn');
     const uploadDialog = document.getElementById('uploadDialog');
@@ -144,6 +148,158 @@ function togglePills(morePill) {
         allPills.forEach(pill => pill.classList.remove('hidden'));
         morePill.classList.add('expanded');
         morePill.textContent = 'Show less';
+    }
+}
+
+// Search functionality
+function initializeSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const searchSuggestions = document.getElementById('searchSuggestions');
+    const fontItems = document.querySelectorAll('.font-item');
+    
+    // Collect all unique values for autocomplete
+    const autocompleteData = {
+        commercialUse: ['Commercial use', 'Personal use only'],
+        projects: new Set(),
+        tags: new Set()
+    };
+    
+    // Extract projects and tags from all font items
+    fontItems.forEach(item => {
+        const projectPills = item.querySelectorAll('.project-pill');
+        const tagPills = item.querySelectorAll('.tag-pill');
+        
+        projectPills.forEach(pill => autocompleteData.projects.add(pill.textContent.trim()));
+        tagPills.forEach(pill => autocompleteData.tags.add(pill.textContent.trim()));
+    });
+    
+    // Convert sets to arrays
+    autocompleteData.projects = Array.from(autocompleteData.projects);
+    autocompleteData.tags = Array.from(autocompleteData.tags);
+    
+    let currentSuggestionIndex = -1;
+    
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        
+        if (query === '') {
+            // Show all fonts when search is empty
+            fontItems.forEach(item => item.style.display = 'block');
+            searchSuggestions.innerHTML = '';
+            searchSuggestions.style.display = 'none';
+            return;
+        }
+        
+        // Filter fonts
+        fontItems.forEach(item => {
+            const fontName = item.querySelector('.font-name').textContent.toLowerCase();
+            const fontFilename = item.querySelector('.font-filename').textContent.toLowerCase();
+            const source = item.querySelector('.metadata-item').textContent.toLowerCase();
+            const commercialUse = item.querySelector('.commercial-use-pill, .personal-use-pill').textContent.toLowerCase();
+            
+            const projectPills = item.querySelectorAll('.project-pill');
+            const projects = Array.from(projectPills).map(pill => pill.textContent.toLowerCase()).join(' ');
+            
+            const tagPills = item.querySelectorAll('.tag-pill');
+            const tags = Array.from(tagPills).map(pill => pill.textContent.toLowerCase()).join(' ');
+            
+            const searchText = `${fontName} ${fontFilename} ${source} ${commercialUse} ${projects} ${tags}`;
+            
+            if (searchText.includes(query)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Show suggestions
+        showSuggestions(query, autocompleteData);
+    });
+    
+    // Handle keyboard navigation for suggestions
+    searchInput.addEventListener('keydown', function(e) {
+        const suggestions = searchSuggestions.querySelectorAll('.suggestion-item');
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            currentSuggestionIndex = Math.min(currentSuggestionIndex + 1, suggestions.length - 1);
+            updateSuggestionHighlight(suggestions);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            currentSuggestionIndex = Math.max(currentSuggestionIndex - 1, -1);
+            updateSuggestionHighlight(suggestions);
+        } else if (e.key === 'Enter' && currentSuggestionIndex >= 0) {
+            e.preventDefault();
+            suggestions[currentSuggestionIndex].click();
+        } else if (e.key === 'Escape') {
+            searchSuggestions.style.display = 'none';
+            currentSuggestionIndex = -1;
+        }
+    });
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+            searchSuggestions.style.display = 'none';
+            currentSuggestionIndex = -1;
+        }
+    });
+    
+    function showSuggestions(query, data) {
+        const suggestions = [];
+        
+        // Add commercial use suggestions
+        data.commercialUse.forEach(item => {
+            if (item.toLowerCase().includes(query)) {
+                suggestions.push({ text: item, type: 'commercial' });
+            }
+        });
+        
+        // Add project suggestions
+        data.projects.forEach(item => {
+            if (item.toLowerCase().includes(query)) {
+                suggestions.push({ text: item, type: 'project' });
+            }
+        });
+        
+        // Add tag suggestions
+        data.tags.forEach(item => {
+            if (item.toLowerCase().includes(query)) {
+                suggestions.push({ text: item, type: 'tag' });
+            }
+        });
+        
+        if (suggestions.length > 0) {
+            searchSuggestions.innerHTML = suggestions.slice(0, 8).map((suggestion, index) => 
+                `<div class="suggestion-item" data-text="${suggestion.text}">${suggestion.text} <span class="suggestion-type">${suggestion.type}</span></div>`
+            ).join('');
+            
+            searchSuggestions.style.display = 'block';
+            currentSuggestionIndex = -1;
+            
+            // Add click handlers to suggestions
+            searchSuggestions.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    searchInput.value = this.dataset.text;
+                    searchInput.dispatchEvent(new Event('input'));
+                    searchSuggestions.style.display = 'none';
+                    currentSuggestionIndex = -1;
+                });
+            });
+        } else {
+            searchSuggestions.style.display = 'none';
+            currentSuggestionIndex = -1;
+        }
+    }
+    
+    function updateSuggestionHighlight(suggestions) {
+        suggestions.forEach((item, index) => {
+            if (index === currentSuggestionIndex) {
+                item.classList.add('highlighted');
+            } else {
+                item.classList.remove('highlighted');
+            }
+        });
     }
 }
 
