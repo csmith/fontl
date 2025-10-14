@@ -41,13 +41,14 @@ func NewServer(storage *Storage, port int) *Server {
 }
 
 func (s *Server) setupRoutes() {
-	s.mux.HandleFunc("/", s.handleIndex)
-	s.mux.HandleFunc("/fonts/", s.handleFontServe)
-	s.mux.HandleFunc("/css/", s.handleCSSServe)
-	s.mux.HandleFunc("/upload", s.handleUpload)
-	s.mux.HandleFunc("/edit", s.handleEdit)
+	s.mux.HandleFunc("GET /", s.handleIndex)
+	s.mux.HandleFunc("GET /api/fonts", s.handleAPIFonts)
+	s.mux.HandleFunc("GET /fonts/", s.handleFontServe)
+	s.mux.HandleFunc("GET /css/", s.handleCSSServe)
+	s.mux.HandleFunc("POST /upload", s.handleUpload)
+	s.mux.HandleFunc("POST /edit", s.handleEdit)
 	staticFS, _ := fs.Sub(StaticFiles, "static")
-	s.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
+	s.mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
 }
 
 func (s *Server) handleFontServe(w http.ResponseWriter, r *http.Request) {

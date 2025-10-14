@@ -9,15 +9,17 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/csmith/envflag/v2"
 	"github.com/csmith/fontl"
 )
 
+var (
+	port      = flag.Int("port", 8080, "Port to listen on")
+	directory = flag.String("dir", ".", "Directory containing fonts")
+)
+
 func main() {
-	var (
-		port      = flag.Int("port", 8080, "Port to listen on")
-		directory = flag.String("dir", ".", "Directory containing fonts")
-	)
-	flag.Parse()
+	envflag.Parse()
 
 	storage := fontl.NewStorage(*directory)
 	if err := storage.Load(); err != nil {
