@@ -4,10 +4,8 @@ import (
 	"context"
 	"flag"
 	"log"
-	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/csmith/envflag/v2"
 	"github.com/csmith/fontl"
@@ -26,35 +24,12 @@ func main() {
 		log.Fatalf("Failed to load fonts: %v", err)
 	}
 
-	server := fontl.NewServer(storage, *port)
-
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	go func() {
-		sigChan := make(chan os.Signal, 1)
-		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-		<-sigChan
-		log.Println("Received shutdown signal, gracefully shutting down...")
-		cancel()
-	}()
-
-	go func() {
-		log.Printf("Starting server on port %d, serving fonts from %s", *port, *directory)
-		if err := server.Start(); err != nil {
-			log.Printf("Server error: %v", err)
-			cancel()
-		}
-	}()
-
-	<-ctx.Done()
-	log.Println("Shutting down...")
-
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer shutdownCancel()
-
-	if err := server.Shutdown(shutdownCtx); err != nil {
-		log.Printf("Error during shutdown: %v", err)
+	log.Printf("Serving fonts from %s", *directory)
+	if err := fontl.NewServer(storage, *port).Serve(ctx); err != nil {
+		log.Fatalf("Server error: %v", err)
 	}
 	log.Println("Server stopped")
 }

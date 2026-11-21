@@ -13,6 +13,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	xhttp "chameth.com/x/http"
 )
 
 type Server struct {
@@ -38,6 +40,12 @@ func NewServer(storage *Storage, port int) *Server {
 
 	s.setupRoutes()
 	return s
+}
+
+// Serve serves until ctx is done, then shuts down gracefully.
+func (s *Server) Serve(ctx context.Context) error {
+	log.Printf("Starting server on %s", s.server.Addr)
+	return xhttp.ListenAndServe(ctx, s.server)
 }
 
 func (s *Server) setupRoutes() {
@@ -329,13 +337,4 @@ func (s *Server) getContentType(filename string) string {
 	default:
 		return "application/octet-stream"
 	}
-}
-
-func (s *Server) Start() error {
-	log.Printf("Starting server on %s", s.server.Addr)
-	return s.server.ListenAndServe()
-}
-
-func (s *Server) Shutdown(ctx context.Context) error {
-	return s.server.Shutdown(ctx)
 }
