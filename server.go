@@ -34,7 +34,7 @@ func NewServer(storage *Storage, port int) *Server {
 		template: initTemplate(),
 		server: &http.Server{
 			Addr:    fmt.Sprintf(":%d", port),
-			Handler: mux,
+			Handler: http.NewCrossOriginProtection().Handler(mux),
 		},
 	}
 
