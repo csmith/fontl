@@ -5,14 +5,18 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+	"sync"
 )
 
 type Storage struct {
 	directory string
+
+	mutex     sync.RWMutex // guards fonts and fontPaths
 	fonts     map[string]*Metadata
 	fontPaths map[string]string
 }
@@ -26,6 +30,9 @@ func NewStorage(directory string) *Storage {
 }
 
 func (m *Storage) Load() error {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
 	m.fonts = make(map[string]*Metadata)
 	m.fontPaths = make(map[string]string)
 
@@ -65,16 +72,27 @@ func (m *Storage) AddFont(fontPath string, metadata *Metadata) error {
 		return fmt.Errorf("font file does not exist: %s", fontPath)
 	}
 
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
 	m.fonts[fontPath] = metadata
 	return m.saveMetadata(m.getMetadataPath(fontPath), metadata)
 }
 
+// GetFonts returns a snapshot of the library, keyed by filename. The returned
+// map and metadata must not be modified.
 func (m *Storage) GetFonts() map[string]*Metadata {
-	return m.fonts
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
+
+	return maps.Clone(m.fonts)
 }
 
 func (m *Storage) GetFontFile(fontName string) (io.ReadCloser, error) {
+	m.mutex.RLock()
 	fontPath, exists := m.fontPaths[fontName]
+	m.mutex.RUnlock()
+
 	if !exists {
 		fontPath = filepath.Join(m.directory, fontName)
 	}
@@ -86,6 +104,9 @@ func (m *Storage) AddUploadedFont(filename, fontPath string, metadata *Metadata)
 		return fmt.Errorf("file is not a supported font type: %s", fontPath)
 	}
 
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
 	m.fonts[filename] = metadata
 	m.fontPaths[filename] = fontPath
 
@@ -93,6 +114,9 @@ func (m *Storage) AddUploadedFont(filename, fontPath string, metadata *Metadata)
 }
 
 func (m *Storage) UpdateFontMetadata(filename string, metadata *Metadata) error {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
 	if _, exists := m.fonts[filename]; !exists {
 		return fmt.Errorf("font not found: %s", filename)
 	}

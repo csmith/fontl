@@ -6,8 +6,12 @@ require (
 	chameth.com/x v0.0.3
 	github.com/csmith/envflag/v2 v2.0.0
 	github.com/csmith/slogflags v1.2.0
+	github.com/stretchr/testify v1.12.1
 )
 
-require github.com/Songmu/gocredits v1.1.0 // indirect
+require (
+	github.com/Songmu/gocredits v1.1.0 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
+)
 
 tool github.com/Songmu/gocredits/cmd/gocredits

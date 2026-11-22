@@ -6,6 +6,7 @@
 - Log in a structured format, with `-log.level` and `-log.format` flags
 - Close connections that are slow to send request headers or sit idle
 - Building now requires Go 1.27.4
+- Fix a crash when an upload or edit overlaps another request
 
 ## 1.1.0 - 2025-10-14
 
