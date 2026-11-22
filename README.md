@@ -18,8 +18,15 @@ commercial use, and so on.
 ## Usage
 
 fontl is designed to be run in a docker container. Images are published to the
-GitHub container registry. You can use docker compose to get a test copy up and
-running quickly:
+GitHub container registry.
+
+fontl serves plain HTTP and doesn't check which hostname it's being accessed
+by, so it must only be run behind a TLS-terminating reverse proxy that routes
+requests by hostname. Don't publish its port on the host or make it reachable
+by browsers any other way. You probably also want the proxy to restrict access
+to authenticated users. fontl does not deal with TLS certificates or auth.
+
+For example, with docker compose and a proxy on a shared `proxy` network:
 
 ```yaml
 services:
@@ -28,13 +35,15 @@ services:
     restart: always
     volumes:
       - /path/to/storage:/fonts
-    ports:
-      - 80:8080
-```
+    expose:
+      - 8080
+    networks:
+      - proxy
 
-Note that for production use you would need to use a TLS-terminating proxy in
-front of fontl. You probably also want to restrict access to authenticated
-users. fontl does not deal with TLS certificates or auth.
+networks:
+  proxy:
+    external: true
+```
 
 ## Provenance
 
