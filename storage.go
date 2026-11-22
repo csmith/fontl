@@ -2,6 +2,7 @@ package fontl
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -12,6 +13,8 @@ import (
 	"strings"
 	"sync"
 )
+
+var ErrFontNotFound = errors.New("font not found")
 
 type Storage struct {
 	directory string
@@ -118,7 +121,7 @@ func (m *Storage) UpdateFontMetadata(filename string, metadata *Metadata) error 
 	defer m.mutex.Unlock()
 
 	if _, exists := m.fonts[filename]; !exists {
-		return fmt.Errorf("font not found: %s", filename)
+		return fmt.Errorf("%w: %s", ErrFontNotFound, filename)
 	}
 
 	fontPath, exists := m.fontPaths[filename]

@@ -40,3 +40,11 @@ func TestStorage_ConcurrentReadsAndWrites(t *testing.T) {
 
 	assert.Len(t, storage.GetFonts(), 20)
 }
+
+func TestStorage_UpdateFontMetadata_UnknownFont(t *testing.T) {
+	storage := NewStorage(t.TempDir())
+	require.NoError(t, storage.Load())
+
+	err := storage.UpdateFontMetadata("missing.ttf", &Metadata{})
+	assert.ErrorIs(t, err, ErrFontNotFound)
+}

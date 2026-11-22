@@ -2,6 +2,7 @@ package fontl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -295,7 +296,10 @@ func (s *Server) handleEdit(w http.ResponseWriter, r *http.Request) {
 		Tags:          tags,
 	}
 
-	if err := s.storage.UpdateFontMetadata(filename, metadata); err != nil {
+	if err := s.storage.UpdateFontMetadata(filename, metadata); errors.Is(err, ErrFontNotFound) {
+		http.Error(w, "Font not found", http.StatusNotFound)
+		return
+	} else if err != nil {
 		slog.Error("Failed to update font metadata", "font", filename, "error", err)
 		http.Error(w, "Failed to update font metadata", http.StatusInternalServerError)
 		return
