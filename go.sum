@@ -1,5 +1,5 @@
-chameth.com/x v0.0.2 h1:EO+uaBZvIx2Pjc7TJMj1COxum1q7NyMn4JlVzOQA8TE=
-chameth.com/x v0.0.2/go.mod h1:L205DjGmjy5l12zEnb0JNHPGMDS+YOfxKzD6tU8tigI=
+chameth.com/x v0.0.3 h1:HQGeTr+OUj5DKWhV4KxQnrqczPYDdZhxImyyD07j2+w=
+chameth.com/x v0.0.3/go.mod h1:9U/ovFFebX3thyTAj4G1yfFnKC7yxklxQDCtT8PQetM=
 github.com/csmith/envflag/v2 v2.0.0 h1:jho28W/psEqJ02EdbUHmkmFpbc5HFhog6NzHRbgtIFg=
 github.com/csmith/envflag/v2 v2.0.0/go.mod h1:GNzzXvZ2bC3z6tdoO45mTrs7l4Uht2WfBKaF1KQu0Pk=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
