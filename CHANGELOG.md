@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Reject cross-site requests to upload or edit fonts
+- Log in a structured format, with `-log.level` and `-log.format` flags
 - Close connections that are slow to send request headers or sit idle
 - Building now requires Go 1.27.4
 

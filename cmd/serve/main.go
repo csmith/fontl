@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"flag"
-	"log"
+	"log/slog"
+	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/csmith/envflag/v2"
 	"github.com/csmith/fontl"
+	"github.com/csmith/slogflags"
 )
 
 var (
@@ -18,18 +20,21 @@ var (
 
 func main() {
 	envflag.Parse()
+	_ = slogflags.Logger(slogflags.WithSetDefault(true))
 
 	storage := fontl.NewStorage(*directory)
 	if err := storage.Load(); err != nil {
-		log.Fatalf("Failed to load fonts: %v", err)
+		slog.Error("Failed to load fonts", "error", err)
+		os.Exit(1)
 	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	log.Printf("Serving fonts from %s", *directory)
+	slog.Info("Serving fonts", "dir", *directory)
 	if err := fontl.NewServer(storage, *port).Serve(ctx); err != nil {
-		log.Fatalf("Server error: %v", err)
+		slog.Error("Server error", "error", err)
+		os.Exit(1)
 	}
-	log.Println("Server stopped")
+	slog.Info("Server stopped")
 }

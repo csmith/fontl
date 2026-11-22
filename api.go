@@ -2,7 +2,7 @@ package fontl
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"path/filepath"
 	"sort"
@@ -39,7 +39,7 @@ func (s *Server) handleAPIFonts(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(fontList); err != nil {
-		log.Printf("Error encoding JSON: %v", err)
+		slog.Error("Error encoding JSON", "error", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 }

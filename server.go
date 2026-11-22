@@ -6,7 +6,7 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -44,7 +44,7 @@ func NewServer(storage *Storage, port int) *Server {
 
 // Serve serves until ctx is done, then shuts down gracefully.
 func (s *Server) Serve(ctx context.Context) error {
-	log.Printf("Starting server on %s", s.server.Addr)
+	slog.Info("Starting server", "addr", s.server.Addr)
 	return xhttp.ListenAndServe(ctx, s.server)
 }
 
@@ -77,7 +77,7 @@ func (s *Server) handleFontServe(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", contentType)
 
 	if _, err := io.Copy(w, file); err != nil {
-		log.Printf("Error serving font %s: %v", fontName, err)
+		slog.Error("Error serving font", "font", fontName, "error", err)
 	}
 }
 
@@ -149,7 +149,7 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := s.template.Execute(w, fontList); err != nil {
-		log.Printf("Error executing template: %v", err)
+		slog.Error("Error executing template", "error", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 }
@@ -186,14 +186,14 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	outFile, err := os.Create(fontPath)
 	if err != nil {
-		log.Printf("Failed to create font file: %v", err)
+		slog.Error("Failed to create font file", "path", fontPath, "error", err)
 		http.Error(w, "Failed to save font file", http.StatusInternalServerError)
 		return
 	}
 	defer outFile.Close()
 
 	if _, err := io.Copy(outFile, file); err != nil {
-		log.Printf("Failed to copy font file: %v", err)
+		slog.Error("Failed to copy font file", "path", fontPath, "error", err)
 		http.Error(w, "Failed to save font file", http.StatusInternalServerError)
 		return
 	}
@@ -229,13 +229,13 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.storage.AddUploadedFont(filename, fontPath, metadata); err != nil {
-		log.Printf("Failed to add font to storage: %v", err)
+		slog.Error("Failed to add font to storage", "font", filename, "error", err)
 		os.Remove(fontPath)
 		http.Error(w, "Failed to save font metadata", http.StatusInternalServerError)
 		return
 	}
 
-	log.Printf("Successfully uploaded font: %s", filename)
+	slog.Info("Uploaded font", "font", filename)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -288,12 +288,12 @@ func (s *Server) handleEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.storage.UpdateFontMetadata(filename, metadata); err != nil {
-		log.Printf("Failed to update font metadata: %v", err)
+		slog.Error("Failed to update font metadata", "font", filename, "error", err)
 		http.Error(w, "Failed to update font metadata", http.StatusInternalServerError)
 		return
 	}
 
-	log.Printf("Successfully updated font metadata: %s", filename)
+	slog.Info("Updated font metadata", "font", filename)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
