@@ -24,18 +24,23 @@ func (s *Server) handleAPIFonts(w http.ResponseWriter, r *http.Request) {
 			fontFamily = strings.TrimSuffix(filename, filepath.Ext(filename))
 		}
 
-		fontData := FontData{
-			Name:     fontFamily,
-			Filename: filename,
-			Metadata: metadata,
-			CSS:      s.generateCSS(filename, metadata),
-		}
-		fontList = append(fontList, fontData)
+		fontList = append(
+			fontList,
+			FontData{
+				Name:     fontFamily,
+				Filename: filename,
+				Metadata: metadata,
+				CSS:      s.generateCSS(filename, metadata),
+			},
+		)
 	}
 
-	sort.Slice(fontList, func(i, j int) bool {
-		return fontList[i].Name < fontList[j].Name
-	})
+	sort.Slice(
+		fontList,
+		func(i, j int) bool {
+			return fontList[i].Name < fontList[j].Name
+		},
+	)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(fontList); err != nil {

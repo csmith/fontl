@@ -88,8 +88,7 @@ func (s *Server) handleCSSServe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fonts := s.storage.GetFonts()
-	metadata, exists := fonts[fontName]
+	metadata, exists := s.storage.GetFonts()[fontName]
 	if !exists {
 		http.Error(w, "Font not found", http.StatusNotFound)
 		return
@@ -106,17 +105,21 @@ func (s *Server) generateCSS(fontName string, metadata *Metadata) string {
 		fontFamily = strings.TrimSuffix(fontName, filepath.Ext(fontName))
 	}
 
-	return fmt.Sprintf(`@font-face {
+	return fmt.Sprintf(
+		`@font-face {
     font-family: '%s';
     src: url('/fonts/%s');
-}`, fontFamily, fontName)
+}`,
+		fontFamily,
+		fontName,
+	)
 }
 
 type FontData struct {
-	Name     string
-	Filename string
-	Metadata *Metadata
-	CSS      string
+	Name     string    `json:"Name"`
+	Filename string    `json:"Filename"`
+	Metadata *Metadata `json:"Metadata"`
+	CSS      string    `json:"CSS"`
 }
 
 func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -134,18 +137,23 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 			fontFamily = strings.TrimSuffix(filename, filepath.Ext(filename))
 		}
 
-		fontData := FontData{
-			Name:     fontFamily,
-			Filename: filename,
-			Metadata: metadata,
-			CSS:      s.generateCSS(filename, metadata),
-		}
-		fontList = append(fontList, fontData)
+		fontList = append(
+			fontList,
+			FontData{
+				Name:     fontFamily,
+				Filename: filename,
+				Metadata: metadata,
+				CSS:      s.generateCSS(filename, metadata),
+			},
+		)
 	}
 
-	sort.Slice(fontList, func(i, j int) bool {
-		return fontList[i].Name < fontList[j].Name
-	})
+	sort.Slice(
+		fontList,
+		func(i, j int) bool {
+			return fontList[i].Name < fontList[j].Name
+		},
+	)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := s.template.Execute(w, fontList); err != nil {
@@ -208,14 +216,14 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	var projects []string
 	if projectsStr := r.FormValue("projects"); projectsStr != "" {
-		for _, p := range strings.Split(projectsStr, ",") {
+		for p := range strings.SplitSeq(projectsStr, ",") {
 			projects = append(projects, strings.TrimSpace(p))
 		}
 	}
 
 	var tags []string
 	if tagsStr := r.FormValue("tags"); tagsStr != "" {
-		for _, t := range strings.Split(tagsStr, ",") {
+		for t := range strings.SplitSeq(tagsStr, ",") {
 			tags = append(tags, strings.TrimSpace(t))
 		}
 	}
@@ -267,14 +275,14 @@ func (s *Server) handleEdit(w http.ResponseWriter, r *http.Request) {
 
 	var projects []string
 	if projectsStr := r.FormValue("projects"); projectsStr != "" {
-		for _, p := range strings.Split(projectsStr, ",") {
+		for p := range strings.SplitSeq(projectsStr, ",") {
 			projects = append(projects, strings.TrimSpace(p))
 		}
 	}
 
 	var tags []string
 	if tagsStr := r.FormValue("tags"); tagsStr != "" {
-		for _, t := range strings.Split(tagsStr, ",") {
+		for t := range strings.SplitSeq(tagsStr, ",") {
 			tags = append(tags, strings.TrimSpace(t))
 		}
 	}
@@ -298,27 +306,31 @@ func (s *Server) handleEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 func initTemplate() *template.Template {
-	return template.Must(template.New("index.gotpl").Funcs(template.FuncMap{
-		"safeCSS": func(css string) template.CSS {
-			return template.CSS(css)
-		},
-		"hasPrefix": func(s, prefix string) bool {
-			return strings.HasPrefix(s, prefix)
-		},
-		"extractDomain": func(url string) string {
-			if strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
-				// Remove protocol
-				url = strings.TrimPrefix(url, "http://")
-				url = strings.TrimPrefix(url, "https://")
-				// Extract just the domain part (before first slash)
-				if idx := strings.Index(url, "/"); idx != -1 {
-					url = url[:idx]
-				}
-				return url
-			}
-			return url
-		},
-	}).Parse(IndexTemplate))
+	return template.Must(
+		template.New("index.gotpl").Funcs(
+			template.FuncMap{
+				"safeCSS": func(css string) template.CSS {
+					return template.CSS(css)
+				},
+				"hasPrefix": func(s, prefix string) bool {
+					return strings.HasPrefix(s, prefix)
+				},
+				"extractDomain": func(url string) string {
+					if strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
+						// Remove protocol
+						url = strings.TrimPrefix(url, "http://")
+						url = strings.TrimPrefix(url, "https://")
+						// Extract just the domain part (before first slash)
+						if idx := strings.Index(url, "/"); idx != -1 {
+							url = url[:idx]
+						}
+						return url
+					}
+					return url
+				},
+			},
+		).Parse(IndexTemplate),
+	)
 }
 
 func (s *Server) getContentType(filename string) string {
